@@ -1,0 +1,544 @@
+<p># Docker Commands, Help &amp; Tips</p>
+<p><br></p>
+<p>### Show commands &amp; management commands</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker</p>
+<p>```</p>
+<p><br></p>
+<p>### Docker version info</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker version</p>
+<p>```</p>
+<p><br></p>
+<p>### Show info like number of containers, etc</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker info</p>
+<p>```</p>
+<p><br></p>
+<p># WORKING WITH CONTAINERS</p>
+<p><br></p>
+<p>### Create an run a container in foreground</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker container run -it -p 80:80 nginx</p>
+<p>```</p>
+<p><br></p>
+<p>### Create an run a container in background</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker container run -d -p 80:80 nginx</p>
+<p>```</p>
+<p><br></p>
+<p>### Shorthand</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker container run -d -p 80:80 nginx</p>
+<p>```</p>
+<p><br></p>
+<p>### Naming Containers</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker container run -d -p 80:80 --name nginx-server nginx</p>
+<p>```</p>
+<p><br></p>
+<p>### TIP: WHAT RUN DID</p>
+<p><br></p>
+<p>- Looked for image called nginx in image cache</p>
+<p>- If not found in cache, it looks to the default image repo on Dockerhub</p>
+<p>- Pulled it down (latest version), stored in the image cache</p>
+<p>- Started it in a new container</p>
+<p>- We specified to take port 80- on the host and forward to port 80 on the container</p>
+<p>- We could do &quot;$ docker container run --publish 8000:80 --detach nginx&quot; to use port 8000</p>
+<p>- We can specify versions like &quot;nginx:1.09&quot;</p>
+<p><br></p>
+<p>### List running containers</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker container ls</p>
+<p>```</p>
+<p><br></p>
+<p>OR</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker ps</p>
+<p>```</p>
+<p><br></p>
+<p>### List all containers (Even if not running)</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker container ls -a</p>
+<p>```</p>
+<p><br></p>
+<p>### Stop container</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker container stop [ID]</p>
+<p>```</p>
+<p><br></p>
+<p>### Stop all running containers</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker stop $(docker ps -aq)</p>
+<p>```</p>
+<p><br></p>
+<p>### Remove container (Can not remove running containers, must stop first)</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker container rm [ID]</p>
+<p>```</p>
+<p><br></p>
+<p>### To remove a running container use force(-f)</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker container rm -f [ID]</p>
+<p>```</p>
+<p><br></p>
+<p>### Remove multiple containers</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker container rm [ID] [ID] [ID]</p>
+<p>```</p>
+<p><br></p>
+<p>### Remove all containers</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker rm $(docker ps -aq)</p>
+<p>```</p>
+<p><br></p>
+<p>### Get logs (Use name or ID)</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker container logs [NAME]</p>
+<p>```</p>
+<p><br></p>
+<p>### List processes running in container</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker container top [NAME]</p>
+<p>```</p>
+<p><br></p>
+<p>#### TIP: ABOUT CONTAINERS</p>
+<p><br></p>
+<p>Docker containers are often compared to virtual machines but they are actually just processes running on your host os. In Windows/Mac, Docker runs in a mini-VM so to see the processes youll need to connect directly to that. On Linux however you can run &quot;ps aux&quot; and see the processes directly</p>
+<p><br></p>
+<p># IMAGE COMMANDS</p>
+<p><br></p>
+<p>### List the images we have pulled</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker image ls</p>
+<p>```</p>
+<p><br></p>
+<p>### We can also just pull down images</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker pull [IMAGE]</p>
+<p>```</p>
+<p><br></p>
+<p>### Remove image</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker image rm [IMAGE]</p>
+<p>```</p>
+<p><br></p>
+<p>### Remove all images</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker rmi $(docker images -a -q)</p>
+<p>```</p>
+<p><br></p>
+<p>#### TIP: ABOUT IMAGES</p>
+<p><br></p>
+<p>- Images are app bianaries and dependencies with meta data about the image data and how to run the image</p>
+<p>- Images are no a complete OS. No kernel, kernel modules (drivers)</p>
+<p>- Host provides the kernel, big difference between VM</p>
+<p><br></p>
+<p>### Some sample container creation</p>
+<p><br></p>
+<p>NGINX:</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker container run -d -p 80:80 --name nginx nginx (-p 80:80 is optional as it runs on 80 by default)</p>
+<p>```</p>
+<p><br></p>
+<p>APACHE:</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker container run -d -p 8080:80 --name apache httpd</p>
+<p>```</p>
+<p><br></p>
+<p>MONGODB:</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker container run -d -p 27017:27017 --name mongo mongo</p>
+<p>```</p>
+<p><br></p>
+<p>MYSQL:</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker container run -d -p 3306:3306 --name mysql --env MYSQL_ROOT_PASSWORD=123456 mysql</p>
+<p>```</p>
+<p><br></p>
+<p>## CONTAINER INFO</p>
+<p><br></p>
+<p>### View info on container</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker container inspect [NAME]</p>
+<p>```</p>
+<p><br></p>
+<p>### Specific property (--format)</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker container inspect --format &apos;{{ .NetworkSettings.IPAddress }}&apos; [NAME]</p>
+<p>```</p>
+<p><br></p>
+<p>### Performance stats (cpu, mem, network, disk, etc)</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker container stats [NAME]</p>
+<p>```</p>
+<p><br></p>
+<p>## ACCESSING CONTAINERS</p>
+<p><br></p>
+<p>### Create new nginx container and bash into</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker container run -it --name [NAME] nginx bash</p>
+<p>```</p>
+<p><br></p>
+<p>- i = interactive Keep STDIN open if not attached</p>
+<p>- t = tty - Open prompt</p>
+<p><br></p>
+<p>**For Git Bash, use &quot;winpty&quot;**</p>
+<p><br></p>
+<p>```</p>
+<p>$ winpty docker container run -it --name [NAME] nginx bash</p>
+<p>```</p>
+<p><br></p>
+<p>### Run/Create Ubuntu container</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker container run -it --name ubuntu ubuntu</p>
+<p>```</p>
+<p><br></p>
+<p>**(no bash because ubuntu uses bash by default)**</p>
+<p><br></p>
+<p>### You can also make it so when you exit the container does not stay by using the -rm flag</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker container run --rm -it --name [NAME] ubuntu</p>
+<p>```</p>
+<p><br></p>
+<p>### Access an already created container, start with -ai</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker container start -ai ubuntu</p>
+<p>```</p>
+<p><br></p>
+<p>### Use exec to edit config, etc</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker container exec -it mysql bash</p>
+<p>```</p>
+<p><br></p>
+<p>### Alpine is a very small Linux distro good for docker</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker container run -it alpine sh</p>
+<p>```</p>
+<p><br></p>
+<p>(use sh because it does not include bash)</p>
+<p>(alpine uses apk for its package manager - can install bash if you want)</p>
+<p><br></p>
+<p># NETWORKING</p>
+<p><br></p>
+<p>### &quot;bridge&quot; or &quot;docker0&quot; is the default network</p>
+<p><br></p>
+<p>### Get port</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker container port [NAME]</p>
+<p>```</p>
+<p><br></p>
+<p>### List networks</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker network ls</p>
+<p>```</p>
+<p><br></p>
+<p>### Inspect network</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker network inspect [NETWORK_NAME]</p>
+<p>(&quot;bridge&quot; is default)</p>
+<p>```</p>
+<p><br></p>
+<p>### Create network</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker network create [NETWORK_NAME]</p>
+<p>```</p>
+<p><br></p>
+<p>### Create container on network</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker container run -d --name [NAME] --network [NETWORK_NAME] nginx</p>
+<p>```</p>
+<p><br></p>
+<p>### Connect existing container to network</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker network connect [NETWORK_NAME] [CONTAINER_NAME]</p>
+<p>```</p>
+<p><br></p>
+<p>### Disconnect container from network</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker network disconnect [NETWORK_NAME] [CONTAINER_NAME]</p>
+<p>```</p>
+<p><br></p>
+<p>### Detach network from container</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker network disconnect</p>
+<p>```</p>
+<p><br></p>
+<p># IMAGE TAGGING &amp; PUSHING TO DOCKERHUB</p>
+<p><br></p>
+<p># tags are labels that point ot an image ID</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker image ls</p>
+<p>```</p>
+<p><br></p>
+<p>Youll see that each image has a tag</p>
+<p><br></p>
+<p>### Retag existing image</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker image tag nginx btraversy/nginx</p>
+<p>```</p>
+<p><br></p>
+<p>### Upload to dockerhub</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker image push bradtraversy/nginx</p>
+<p>```</p>
+<p><br></p>
+<p>### If denied, do</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker login</p>
+<p>```</p>
+<p><br></p>
+<p>### Add tag to new image</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker image tag bradtraversy/nginx bradtraversy/nginx:testing</p>
+<p>```</p>
+<p><br></p>
+<p>### DOCKERFILE PARTS</p>
+<p><br></p>
+<p>- FROM - The os used. Common is alpine, debian, ubuntu</p>
+<p>- ENV - Environment variables</p>
+<p>- RUN - Run commands/shell scripts, etc</p>
+<p>- EXPOSE - Ports to expose</p>
+<p>- CMD - Final command run when you launch a new container from image</p>
+<p>- WORKDIR - Sets working directory (also could use &apos;RUN cd /some/path&apos;)</p>
+<p>- COPY # Copies files from host to container</p>
+<p><br></p>
+<p>### Build image from dockerfile (reponame can be whatever)</p>
+<p><br></p>
+<p>### From the same directory as Dockerfile</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker image build -t [REPONAME] .</p>
+<p>```</p>
+<p><br></p>
+<p>#### TIP: CACHE &amp; ORDER</p>
+<p><br></p>
+<p>- If you re-run the build, it will be quick because everythging is cached.</p>
+<p>- If you change one line and re-run, that line and everything after will not be cached</p>
+<p>- Keep things that change the most toward the bottom of the Dockerfile</p>
+<p><br></p>
+<p># EXTENDING DOCKERFILE</p>
+<p><br></p>
+<p>### Custom Dockerfile for html paqge with nginx</p>
+<p><br></p>
+<p>```</p>
+<p>FROM nginx:latest # Extends nginx so everything included in that image is included here</p>
+<p>WORKDIR /usr/share/nginx/html</p>
+<p>COPY index.html index.html</p>
+<p>```</p>
+<p><br></p>
+<p>### Build image from Dockerfile</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker image build -t nginx-website</p>
+<p>```</p>
+<p><br></p>
+<p>### Running it</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker container run -p 80:80 --rm nginx-website</p>
+<p>```</p>
+<p><br></p>
+<p>### Tag and push to Dockerhub</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker image tag nginx-website:latest btraversy/nginx-website:latest</p>
+<p>```</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker image push bradtraversy/nginx-website</p>
+<p>```</p>
+<p><br></p>
+<p># VOLUMES</p>
+<p><br></p>
+<p>### Volume - Makes special location outside of container UFS. Used for databases</p>
+<p><br></p>
+<p>### Bind Mount -Link container path to host path</p>
+<p><br></p>
+<p>### Check volumes</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker volume ls</p>
+<p>```</p>
+<p><br></p>
+<p>### Cleanup unused volumes</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker volume prune</p>
+<p>```</p>
+<p><br></p>
+<p>### Pull down mysql image to test</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker pull mysql</p>
+<p>```</p>
+<p><br></p>
+<p>### Inspect and see volume</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker image inspect mysql</p>
+<p>```</p>
+<p><br></p>
+<p>### Run container</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker container run -d --name mysql -e MYSQL_ALLOW_EMPTY_PASSWORD=True mysql</p>
+<p>```</p>
+<p><br></p>
+<p>### Inspect and see volume in container</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker container inspect mysql</p>
+<p>```</p>
+<p><br></p>
+<p>#### TIP: Mounts</p>
+<p><br></p>
+<p>- You will also see the volume under mounts</p>
+<p>- Container gets its own uniqe location on the host to store that data</p>
+<p>- Source: xxx is where it lives on the host</p>
+<p><br></p>
+<p>### Check volumes</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker volume ls</p>
+<p>```</p>
+<p><br></p>
+<p>**There is no way to tell volumes apart for instance with 2 mysql containers, so we used named volumes**</p>
+<p><br></p>
+<p>### Named volumes (Add -v command)(the name here is mysql-db which could be anything)</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker container run -d --name mysql -e MYSQL_ALLOW_EMPTY_PASSWORD=True -v mysql-db:/var/lib/mysql mysql</p>
+<p>```</p>
+<p><br></p>
+<p>### Inspect new named volume</p>
+<p><br></p>
+<p>```</p>
+<p>docker volume inspect mysql-db</p>
+<p>```</p>
+<p><br></p>
+<p># BIND MOUNTS</p>
+<p><br></p>
+<p>- Can not use in Dockerfile, specified at run time (uses -v as well)</p>
+<p>- ... run -v /Users/brad/stuff:/path/container (mac/linux)</p>
+<p>- ... run -v //c/Users/brad/stuff:/path/container (windows)</p>
+<p><br></p>
+<p>**TIP: Instead of typing out local path, for working directory use $(pwd):/path/container - On windows may not work unless you are in your users folder**</p>
+<p><br></p>
+<p>### Run and be able to edit index.html file (local dir should have the Dockerfile and the index.html)</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker container run &nbsp;-p 80:80 -v $(pwd):/usr/share/nginx/html nginx</p>
+<p>```</p>
+<p><br></p>
+<p>### Go into the container and check</p>
+<p><br></p>
+<p>```</p>
+<p>$ docker container exec -it nginx bash</p>
+<p>$ cd /usr/share/nginx/html</p>
+<p>$ ls -al</p>
+<p>```</p>
+<p><br></p>
+<p>### You could create a file in the container and it will exiost on the host as well</p>
+<p><br></p>
+<p>```</p>
+<p>$ touch test.txt</p>
+<p>```</p>
+<p><br></p>
+<p># DOCKER COMPOSE</p>
+<p><br></p>
+<p>- Configure relationships between containers</p>
+<p>- Save our docker container run settings in easy to read file</p>
+<p>- 2 Parts: YAML File (docker.compose.yml) + CLI tool (docker-compose)</p>
+<p><br></p>
+<p>### 1. docker.compose.yml - Describes solutions for</p>
+<p><br></p>
+<p>- containers</p>
+<p>- networks</p>
+<p>- volumes</p>
+<p><br></p>
+<p>### 2. docker-compose CLI - used for local dev/test automation with YAML files</p>
+<p><br></p>
+<p>### Sample compose file (From Bret Fishers course)</p>
+<p><br></p>
+<p>```</p>
+<p>version: &apos;2&apos;</p>
+<p><br></p>
+<p># same as</p>
+<p># docker run -p 80:4000 -v $(pwd):/site bretfisher/jekyll-serve</p>
+<p><br></p>
+<p>services:</p>
+<p>&nbsp; jekyll:</p>
+<p>&nbsp; &nbsp; image: bretfisher/jekyll-serve</p>
+<p>&nbsp; &nbsp; volumes:</p>
+<p>&nbsp; &nbsp; &nbsp; - .:/site</p>
+<p>&nbsp; &nbsp; ports:</p>
+<p>&nbsp; &nbsp; &nbsp; - &apos;80:4000&apos;</p>
+<p>```</p>
+<p><br></p>
+<p>### To run</p>
+<p><br></p>
+<p>```</p>
+<p>docker-compose up</p>
+<p>```</p>
+<p><br></p>
+<p>### You can run in background with</p>
+<p><br></p>
+<p>```</p>
+<p>docker-compose up -d</p>
+<p>```</p>
+<p><br></p>
+<p>### To cleanup</p>
+<p><br></p>
+<p>```</p>
+<p>docker-compose down</p>
+<p>```</p>
+<p><br></p>
