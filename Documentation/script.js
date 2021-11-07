@@ -1,3 +1,5 @@
-// Also featured on MaterialUp!
-
-// http://www.materialup.com/posts/colourful-flower-popup-menu
+$(document).ready(function() {
+  $(".trigger").click(function() {
+    $(".menu").toggleClass("active"); 
+  });
+});
