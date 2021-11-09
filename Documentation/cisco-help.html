@@ -1,0 +1,102 @@
+<h1 id="general-commands">General Commands</h1>
+<h3 id="elevate-privileges">Elevate privileges</h3>
+<pre><code>&gt;<span class="hljs-built_in">enable</span>
+</code></pre><h3 id="enter-configuration-shell-to-make-changes">Enter configuration shell to make changes</h3>
+<pre><code>&gt;configure <span class="hljs-built_in">terminal</span>
+</code></pre><h3 id="save-config">Save Config</h3>
+<pre><code>&gt;copy <span class="hljs-built_in">running</span>-<span class="hljs-built_in">config</span> startup-<span class="hljs-built_in">config</span>
+</code></pre><h3 id="save-config-deprecated-but-works-">Save Config (deprecated but works)</h3>
+<pre><code>&gt;<span class="hljs-built_in">write</span>
+</code></pre><h3 id="enable-cdp-globally">Enable cdp globally</h3>
+<pre><code>&gt;cdp <span class="hljs-keyword">run</span><span class="bash"></span>
+</code></pre><h3 id="disable-cdp-globally">Disable cdp globally</h3>
+<pre><code>&gt;no cdp <span class="hljs-keyword">run</span><span class="bash"></span>
+</code></pre><h1 id="vlans">VLANS</h1>
+<h3 id="shows-the-untagged-vlans-available-on-every-port-">Shows the UNTAGGED vlans available on every port.</h3>
+<pre><code>&gt;<span class="hljs-keyword">show</span> vlan
+</code></pre><h3 id="inspect-each-vlan-to-see-tagged-vlans-available-on-each-port">Inspect each VLAN to see TAGGED vlans available on each port</h3>
+<pre><code>&gt;show vlan <span class="hljs-keyword">id</span> &lt;<span class="hljs-keyword">int</span>&gt;
+</code></pre><h3 id="make-a-vlan">Make a vlan</h3>
+<pre><code>(<span class="hljs-built_in">config</span>)<span class="hljs-meta">#vlan 3</span>
+(<span class="hljs-built_in">config</span>-vlan)<span class="hljs-meta">#name my-awesome-vlan</span>
+(<span class="hljs-built_in">config</span>-vlan)<span class="hljs-meta">#no shutdown</span>
+</code></pre><h3 id="setup-port-s-tagged-vlans-trunk-">Setup port`s TAGGED VLANs (Trunk)</h3>
+<pre><code>(<span class="hljs-built_in">config</span>)<span class="hljs-meta">#interface Gi0/48</span>
+(<span class="hljs-built_in">config</span>-<span class="hljs-built_in">if</span>)<span class="hljs-meta">#switchport trunk encapsulation dot1q</span>
+(<span class="hljs-built_in">config</span>-<span class="hljs-built_in">if</span>)<span class="hljs-meta">#switchport mode trunk</span>
+(<span class="hljs-built_in">config</span>-<span class="hljs-built_in">if</span>)<span class="hljs-meta">#switchport trunk allowed vlan add 4</span>
+(<span class="hljs-built_in">config</span>-<span class="hljs-built_in">if</span>)<span class="hljs-meta">#switchport trunk allowed vlan remove 1-3</span>
+(<span class="hljs-built_in">config</span>-<span class="hljs-built_in">if</span>)<span class="hljs-meta">#switchport trunk native vlan 5</span>
+</code></pre><h3 id="set-port-s-untagged-vlan">Set port`s UNTAGGED VLAN</h3>
+<pre><code>(<span class="hljs-built_in">config</span>)<span class="hljs-meta">#interface Gi0/1</span>
+(<span class="hljs-built_in">config</span>-<span class="hljs-built_in">if</span>)<span class="hljs-meta">#switchport mode access</span>
+(<span class="hljs-built_in">config</span>-<span class="hljs-built_in">if</span>)<span class="hljs-meta">#switchport access vlan 5</span>
+</code></pre><h3 id="configure-multiple-ports-at-once">Configure multiple ports at once</h3>
+<pre><code>(<span class="hljs-built_in">config</span>)<span class="hljs-meta">#interface range Gi0/1-24</span>
+(<span class="hljs-built_in">config</span>-<span class="hljs-built_in">if</span>)#&lt;<span class="hljs-built_in">do</span> whatever&gt;
+</code></pre><h3 id="delete-vlan">Delete VLAN</h3>
+<pre><code>(<span class="hljs-built_in">config</span>)<span class="hljs-meta">#no vlan <span class="hljs-meta-string">&lt;vlan id&gt;</span></span>
+</code></pre><h3 id="disable-trunk-on-port">Disable trunk on port</h3>
+<pre><code>(<span class="hljs-built_in">config</span>-<span class="hljs-built_in">if</span>)<span class="hljs-meta">#no switchport trunk encapsulation dot1q</span>
+</code></pre><h3 id="disable-cdp-on-port-interface">Disable CDP on port/interface</h3>
+<pre><code>(<span class="hljs-built_in">config</span>-<span class="hljs-built_in">if</span>)<span class="hljs-meta">#no cdp enable</span>
+</code></pre><h3 id="disable-dtp-negotiation-on-port">Disable dtp negotiation on port</h3>
+<pre><code>(<span class="hljs-built_in">config</span>-<span class="hljs-built_in">if</span>)<span class="hljs-meta">#switchport nonegotiate</span>
+</code></pre><h1 id="layer-3">Layer 3</h1>
+<h3 id="show-routing-table-">Show routing table.</h3>
+<pre><code><span class="hljs-symbol">show</span> <span class="hljs-built_in">ip</span> route
+</code></pre><h3 id="set-ip-addresses-on-a-vlan-assigned-to-a-set-of-ports-">Set IP addresses on a VLAN (assigned to a set of ports)</h3>
+<pre><code>(config)<span class="hljs-selector-id">#interface</span> Vlan5
+(config-<span class="hljs-keyword">if</span>)<span class="hljs-selector-id">#ip</span> <span class="hljs-selector-tag">address</span> <span class="hljs-number">10.12</span>.<span class="hljs-number">34.1</span> <span class="hljs-number">255.255</span>.<span class="hljs-number">255.0</span>
+(config-<span class="hljs-keyword">if</span>)<span class="hljs-selector-id">#no</span> shutdown
+</code></pre><h3 id="set-default-route-layer-3-net-mask-gw-">Set default route (layer 3) [net/mask/gw]</h3>
+<pre><code>(<span class="hljs-selector-tag">config</span>)<span class="hljs-selector-id">#ip</span> <span class="hljs-selector-tag">route</span> 0<span class="hljs-selector-class">.0</span><span class="hljs-selector-class">.0</span><span class="hljs-selector-class">.0</span> 0<span class="hljs-selector-class">.0</span><span class="hljs-selector-class">.0</span><span class="hljs-selector-class">.0</span> 10<span class="hljs-selector-class">.0</span><span class="hljs-selector-class">.1</span><span class="hljs-selector-class">.1</span>
+</code></pre><h3 id="resetting-a-switch">Resetting a switch</h3>
+<pre><code>Hold <span class="hljs-keyword">the</span> <span class="hljs-string">"MODE"</span> button <span class="hljs-keyword">on</span> <span class="hljs-title">the</span> <span class="hljs-title">front</span> <span class="hljs-title">of</span> <span class="hljs-title">the</span> <span class="hljs-title">switch</span> <span class="hljs-title">whilst</span> <span class="hljs-title">plugging</span> <span class="hljs-title">in</span> <span class="hljs-title">the</span> <span class="hljs-title">power</span> <span class="hljs-title">cable</span>.
+SYS LED will <span class="hljs-built_in">start</span> flashing.
+Open <span class="hljs-keyword">a</span> serial terminal <span class="hljs-keyword">on</span> <span class="hljs-title">9600</span> <span class="hljs-title">or</span> <span class="hljs-title">115200</span> <span class="hljs-title">depending</span> <span class="hljs-title">on</span> <span class="hljs-title">model</span>.
+<span class="hljs-keyword">switch</span>: flash_init
+
+Initializing Flash...
+
+flashfs[<span class="hljs-number">0</span>]: <span class="hljs-number">251</span> <span class="hljs-built_in">files</span>, <span class="hljs-number">3</span> <span class="hljs-built_in">directories</span>
+flashfs[<span class="hljs-number">0</span>]: <span class="hljs-number">0</span> orphaned <span class="hljs-built_in">files</span>, <span class="hljs-number">0</span> orphaned <span class="hljs-built_in">directories</span>
+flashfs[<span class="hljs-number">0</span>]: Total <span class="hljs-keyword">bytes</span>: <span class="hljs-number">15998976</span>
+flashfs[<span class="hljs-number">0</span>]: Bytes used: <span class="hljs-number">15995392</span>
+flashfs[<span class="hljs-number">0</span>]: Bytes available: <span class="hljs-number">3584</span>
+flashfs[<span class="hljs-number">0</span>]: flashfs fsck took <span class="hljs-number">10</span> <span class="hljs-built_in">seconds</span>.
+...done Initializing Flash.
+<span class="hljs-keyword">switch</span>: dir flash:
+
+Directory <span class="hljs-keyword">of</span> flash:/
+    <span class="hljs-number">3</span>  -rwx  <span class="hljs-number">15411751</span>  &lt;<span class="hljs-built_in">date</span>&gt;               c3750-ipbasek9-mz<span class="hljs-number">.122</span><span class="hljs-number">-58.</span>SE2.bin
+    <span class="hljs-number">5</span>  drwx  <span class="hljs-number">7744</span>      &lt;<span class="hljs-built_in">date</span>&gt;               crashinfo_ext
+    <span class="hljs-number">8</span>  drwx  <span class="hljs-number">7744</span>      &lt;<span class="hljs-built_in">date</span>&gt;               crashinfo
+  <span class="hljs-number">122</span>  -rwx  <span class="hljs-number">1915</span>      &lt;<span class="hljs-built_in">date</span>&gt;               <span class="hljs-keyword">private</span>-config.<span class="hljs-keyword">text</span>
+  <span class="hljs-number">251</span>  -rwx  <span class="hljs-number">156</span>       &lt;<span class="hljs-built_in">date</span>&gt;               express_setup.debug
+  <span class="hljs-number">252</span>  -rwx  <span class="hljs-number">2649</span>      &lt;<span class="hljs-built_in">date</span>&gt;               config.<span class="hljs-keyword">text</span>
+  <span class="hljs-number">253</span>  -rwx  <span class="hljs-number">3096</span>      &lt;<span class="hljs-built_in">date</span>&gt;               multiple-fs
+  <span class="hljs-number">254</span>  -rwx  <span class="hljs-number">676</span>       &lt;<span class="hljs-built_in">date</span>&gt;               vlan.dat
+
+<span class="hljs-number">3584</span> <span class="hljs-keyword">bytes</span> available (<span class="hljs-number">15995392</span> <span class="hljs-keyword">bytes</span> used)
+<span class="hljs-keyword">switch</span>: <span class="hljs-built_in">rename</span> flash:config.<span class="hljs-keyword">text</span> flash:config.<span class="hljs-keyword">text</span>.disabled
+<span class="hljs-keyword">switch</span>: boot
+The <span class="hljs-keyword">switch</span> will boot up. At some point <span class="hljs-keyword">it</span> will ask:
+
+Would you like <span class="hljs-built_in">to</span> enter <span class="hljs-keyword">the</span> initial configuration dialog? [yes/no]: 
+yes
+And <span class="hljs-built_in">from</span> here you can configure <span class="hljs-keyword">the</span> <span class="hljs-keyword">switch</span> <span class="hljs-keyword">as</span> <span class="hljs-keyword">normal</span>.
+</code></pre><h3 id="accessing-the-flash">Accessing the flash</h3>
+<pre><code>&gt;<span class="hljs-keyword">List</span> files
+&gt;<span class="hljs-keyword">dir</span>
+&gt;<span class="hljs-keyword">Move</span>
+
+&gt;<span class="hljs-keyword">rename</span> flash:myfile.txt  flash:myfile2.txt
+&gt;<span class="hljs-keyword">Copy</span>
+
+&gt;<span class="hljs-keyword">copy</span> flash:myfile.txt  flash:myfile2.txt
+</code></pre><h3 id="delete-file">Delete file</h3>
+<pre><code>&gt;<span class="hljs-keyword">delete</span> flash:myfile.txt
+</code></pre><h3 id="delete-directory">Delete directory</h3>
+<pre><code>&gt;rm  <span class="hljs-string">flash:</span>myfiles/
+</code></pre>
