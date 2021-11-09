@@ -1,0 +1,4 @@
+This is a Brave Rewards publisher verification file.
+
+Domain: teresoic.github.io
+Token: 5162173342e040b5782bddb3bbbb41c26bac46eb9b3426e7581f7291c723b17d
