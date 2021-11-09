@@ -1,0 +1,241 @@
+<h1 id="docker-commands-help-tips">Docker Commands, Help &amp; Tips</h1>
+<h3 id="show-commands-management-commands">Show commands &amp; management commands</h3>
+<pre><code><span class="hljs-variable">$ </span>docker
+</code></pre><h3 id="docker-version-info">Docker version info</h3>
+<pre><code>$ docker <span class="hljs-built_in">version</span>
+</code></pre><h3 id="show-info-like-number-of-containers-etc">Show info like number of containers, etc</h3>
+<pre><code>$ docker <span class="hljs-meta">info</span>
+</code></pre><h1 id="working-with-containers">WORKING WITH CONTAINERS</h1>
+<h3 id="create-an-run-a-container-in-foreground">Create an run a container in foreground</h3>
+<pre><code>$ docker container <span class="hljs-built_in">run</span> -<span class="hljs-keyword">it</span> -p <span class="hljs-number">80</span>:<span class="hljs-number">80</span> nginx
+</code></pre><h3 id="create-an-run-a-container-in-background">Create an run a container in background</h3>
+<pre><code>$ docker container <span class="hljs-keyword">run</span><span class="bash"> <span class="hljs-_">-d</span> -p 80:80 nginx</span>
+</code></pre><h3 id="shorthand">Shorthand</h3>
+<pre><code>$ docker container <span class="hljs-keyword">run</span><span class="bash"> <span class="hljs-_">-d</span> -p 80:80 nginx</span>
+</code></pre><h3 id="naming-containers">Naming Containers</h3>
+<pre><code>$ docker container <span class="hljs-keyword">run</span><span class="bash"> <span class="hljs-_">-d</span> -p 80:80 --name nginx-server nginx</span>
+</code></pre><h3 id="tip-what-run-did">TIP: WHAT RUN DID</h3>
+<ul>
+<li>Looked for image called nginx in image cache</li>
+<li>If not found in cache, it looks to the default image repo on Dockerhub</li>
+<li>Pulled it down (latest version), stored in the image cache</li>
+<li>Started it in a new container</li>
+<li>We specified to take port 80- on the host and forward to port 80 on the container</li>
+<li>We could do &quot;$ docker container run --publish 8000:80 --detach nginx&quot; to use port 8000</li>
+<li>We can specify versions like &quot;nginx:1.09&quot;</li>
+</ul>
+<h3 id="list-running-containers">List running containers</h3>
+<pre><code>$ docker <span class="hljs-keyword">container</span> <span class="hljs-keyword">ls</span>
+</code></pre><p>OR</p>
+<pre><code><span class="hljs-variable">$ </span>docker ps
+</code></pre><h3 id="list-all-containers-even-if-not-running-">List all containers (Even if not running)</h3>
+<pre><code>$ docker <span class="hljs-keyword">container</span> <span class="hljs-keyword">ls</span> -a
+</code></pre><h3 id="stop-container">Stop container</h3>
+<pre><code>$ docker <span class="hljs-keyword">container</span> stop <span class="hljs-comment">[ID]</span>
+</code></pre><h3 id="stop-all-running-containers">Stop all running containers</h3>
+<pre><code><span class="hljs-variable">$ </span>docker stop <span class="hljs-variable">$(</span>docker ps -aq)
+</code></pre><h3 id="remove-container-can-not-remove-running-containers-must-stop-first-">Remove container (Can not remove running containers, must stop first)</h3>
+<pre><code>$ docker <span class="hljs-keyword">container</span> rm <span class="hljs-comment">[ID]</span>
+</code></pre><h3 id="to-remove-a-running-container-use-force-f-">To remove a running container use force(-f)</h3>
+<pre><code>$ docker <span class="hljs-keyword">container</span> rm -f <span class="hljs-comment">[ID]</span>
+</code></pre><h3 id="remove-multiple-containers">Remove multiple containers</h3>
+<pre><code>$ docker <span class="hljs-keyword">container</span> rm <span class="hljs-comment">[ID]</span> <span class="hljs-comment">[ID]</span> <span class="hljs-comment">[ID]</span>
+</code></pre><h3 id="remove-all-containers">Remove all containers</h3>
+<pre><code><span class="hljs-variable">$ </span>docker rm <span class="hljs-variable">$(</span>docker ps -aq)
+</code></pre><h3 id="get-logs-use-name-or-id-">Get logs (Use name or ID)</h3>
+<pre><code>$ docker <span class="hljs-keyword">container</span> logs <span class="hljs-comment">[NAME]</span>
+</code></pre><h3 id="list-processes-running-in-container">List processes running in container</h3>
+<pre><code>$ docker <span class="hljs-keyword">container</span> top <span class="hljs-comment">[NAME]</span>
+</code></pre><h4 id="tip-about-containers">TIP: ABOUT CONTAINERS</h4>
+<p>Docker containers are often compared to virtual machines but they are actually just processes running on your host os. In Windows/Mac, Docker runs in a mini-VM so to see the processes youll need to connect directly to that. On Linux however you can run &quot;ps aux&quot; and see the processes directly</p>
+<h1 id="image-commands">IMAGE COMMANDS</h1>
+<h3 id="list-the-images-we-have-pulled">List the images we have pulled</h3>
+<pre><code>$ docker <span class="hljs-keyword">image</span> <span class="hljs-keyword">ls</span>
+</code></pre><h3 id="we-can-also-just-pull-down-images">We can also just pull down images</h3>
+<pre><code>$ docker pull <span class="hljs-string">[IMAGE]</span>
+</code></pre><h3 id="remove-image">Remove image</h3>
+<pre><code>$ docker <span class="hljs-built_in">image</span> rm [<span class="hljs-built_in">IMAGE</span>]
+</code></pre><h3 id="remove-all-images">Remove all images</h3>
+<pre><code><span class="hljs-variable">$ </span>docker rmi <span class="hljs-variable">$(</span>docker images -a -q)
+</code></pre><h4 id="tip-about-images">TIP: ABOUT IMAGES</h4>
+<ul>
+<li>Images are app bianaries and dependencies with meta data about the image data and how to run the image</li>
+<li>Images are no a complete OS. No kernel, kernel modules (drivers)</li>
+<li>Host provides the kernel, big difference between VM</li>
+</ul>
+<h3 id="some-sample-container-creation">Some sample container creation</h3>
+<p>NGINX:</p>
+<pre><code>$ docker container run -d -p <span class="hljs-number">80</span>:<span class="hljs-number">80</span> --name nginx nginx (-p <span class="hljs-number">80</span>:<span class="hljs-number">80</span> <span class="hljs-keyword">is</span> <span class="hljs-keyword">optional</span> <span class="hljs-keyword">as</span> it runs <span class="hljs-keyword">on</span> <span class="hljs-number">80</span> <span class="hljs-keyword">by</span> <span class="hljs-keyword">default</span>)
+</code></pre><p>APACHE:</p>
+<pre><code>$ docker container <span class="hljs-keyword">run</span><span class="bash"> <span class="hljs-_">-d</span> -p 8080:80 --name apache httpd</span>
+</code></pre><p>MONGODB:</p>
+<pre><code>$ docker container <span class="hljs-keyword">run</span><span class="bash"> <span class="hljs-_">-d</span> -p 27017:27017 --name mongo mongo</span>
+</code></pre><p>MYSQL:</p>
+<pre><code>$ docker container <span class="hljs-keyword">run</span><span class="bash"> <span class="hljs-_">-d</span> -p 3306:3306 --name mysql --env MYSQL_ROOT_PASSWORD=123456 mysql</span>
+</code></pre><h2 id="container-info">CONTAINER INFO</h2>
+<h3 id="view-info-on-container">View info on container</h3>
+<pre><code>$ docker <span class="hljs-keyword">container</span> inspect <span class="hljs-comment">[NAME]</span>
+</code></pre><h3 id="specific-property-format-">Specific property (--format)</h3>
+<pre><code>$ docker <span class="hljs-keyword">container</span> inspect --<span class="hljs-keyword">format</span> <span class="hljs-string">'{{ .NetworkSettings.IPAddress }}'</span> [NAME]
+</code></pre><h3 id="performance-stats-cpu-mem-network-disk-etc-">Performance stats (cpu, mem, network, disk, etc)</h3>
+<pre><code>$ docker <span class="hljs-keyword">container</span> stats <span class="hljs-comment">[NAME]</span>
+</code></pre><h2 id="accessing-containers">ACCESSING CONTAINERS</h2>
+<h3 id="create-new-nginx-container-and-bash-into">Create new nginx container and bash into</h3>
+<pre><code>$ docker container <span class="hljs-built_in">run</span> -<span class="hljs-keyword">it</span> <span class="hljs-comment">--name [NAME] nginx bash</span>
+</code></pre><ul>
+<li>i = interactive Keep STDIN open if not attached</li>
+<li>t = tty - Open prompt</li>
+</ul>
+<p><strong>For Git Bash, use &quot;winpty&quot;</strong></p>
+<pre><code>$ winpty docker container <span class="hljs-built_in">run</span> -<span class="hljs-keyword">it</span> <span class="hljs-comment">--name [NAME] nginx bash</span>
+</code></pre><h3 id="run-create-ubuntu-container">Run/Create Ubuntu container</h3>
+<pre><code>$ docker container <span class="hljs-built_in">run</span> -<span class="hljs-keyword">it</span> <span class="hljs-comment">--name ubuntu ubuntu</span>
+</code></pre><p><strong>(no bash because ubuntu uses bash by default)</strong></p>
+<h3 id="you-can-also-make-it-so-when-you-exit-the-container-does-not-stay-by-using-the-rm-flag">You can also make it so when you exit the container does not stay by using the -rm flag</h3>
+<pre><code>$ docker container <span class="hljs-built_in">run</span> <span class="hljs-comment">--rm -it --name [NAME] ubuntu</span>
+</code></pre><h3 id="access-an-already-created-container-start-with-ai">Access an already created container, start with -ai</h3>
+<pre><code>$ docker <span class="hljs-keyword">container</span> start -ai ubuntu
+</code></pre><h3 id="use-exec-to-edit-config-etc">Use exec to edit config, etc</h3>
+<pre><code>$ docker <span class="hljs-keyword">container</span> <span class="hljs-keyword">exec</span> -it mysql bash
+</code></pre><h3 id="alpine-is-a-very-small-linux-distro-good-for-docker">Alpine is a very small Linux distro good for docker</h3>
+<pre><code>$ docker container <span class="hljs-built_in">run</span> -<span class="hljs-keyword">it</span> alpine sh
+</code></pre><p>(use sh because it does not include bash)
+(alpine uses apk for its package manager - can install bash if you want)</p>
+<h1 id="networking">NETWORKING</h1>
+<h3 id="-bridge-or-docker0-is-the-default-network">&quot;bridge&quot; or &quot;docker0&quot; is the default network</h3>
+<h3 id="get-port">Get port</h3>
+<pre><code>$ docker <span class="hljs-keyword">container</span> port <span class="hljs-comment">[NAME]</span>
+</code></pre><h3 id="list-networks">List networks</h3>
+<pre><code><span class="hljs-variable">$ </span>docker network ls
+</code></pre><h3 id="inspect-network">Inspect network</h3>
+<pre><code>$ docker network inspect [NETWORK_NAME]
+(<span class="hljs-string">"bridge"</span> <span class="hljs-keyword">is</span> <span class="hljs-keyword">default</span>)
+</code></pre><h3 id="create-network">Create network</h3>
+<pre><code>$ docker network create <span class="hljs-string">[NETWORK_NAME]</span>
+</code></pre><h3 id="create-container-on-network">Create container on network</h3>
+<pre><code>$ docker container <span class="hljs-keyword">run</span><span class="bash"> <span class="hljs-_">-d</span> --name [NAME] --network [NETWORK_NAME] nginx</span>
+</code></pre><h3 id="connect-existing-container-to-network">Connect existing container to network</h3>
+<pre><code>$ docker network connect <span class="hljs-string">[NETWORK_NAME]</span> <span class="hljs-string">[CONTAINER_NAME]</span>
+</code></pre><h3 id="disconnect-container-from-network">Disconnect container from network</h3>
+<pre><code>$ docker network disconnect <span class="hljs-string">[NETWORK_NAME]</span> <span class="hljs-string">[CONTAINER_NAME]</span>
+</code></pre><h3 id="detach-network-from-container">Detach network from container</h3>
+<pre><code>$ docker network <span class="hljs-built_in">disconnect</span>
+</code></pre><h1 id="image-tagging-pushing-to-dockerhub">IMAGE TAGGING &amp; PUSHING TO DOCKERHUB</h1>
+<h1 id="tags-are-labels-that-point-ot-an-image-id">tags are labels that point ot an image ID</h1>
+<pre><code>$ docker <span class="hljs-keyword">image</span> <span class="hljs-keyword">ls</span>
+</code></pre><p>Youll see that each image has a tag</p>
+<h3 id="retag-existing-image">Retag existing image</h3>
+<pre><code>$ docker image <span class="hljs-keyword">tag</span> <span class="hljs-title">nginx</span> btraversy/nginx
+</code></pre><h3 id="upload-to-dockerhub">Upload to dockerhub</h3>
+<pre><code>$ docker <span class="hljs-built_in">image</span> <span class="hljs-built_in">push</span> bradtraversy/nginx
+</code></pre><h3 id="if-denied-do">If denied, do</h3>
+<pre><code><span class="hljs-variable">$ </span>docker login
+</code></pre><h3 id="add-tag-to-new-image">Add tag to new image</h3>
+<pre><code>$ docker image <span class="hljs-keyword">tag</span> <span class="hljs-title">bradtraversy</span>/nginx bradtraversy/nginx:testing
+</code></pre><h3 id="dockerfile-parts">DOCKERFILE PARTS</h3>
+<ul>
+<li>FROM - The os used. Common is alpine, debian, ubuntu</li>
+<li>ENV - Environment variables</li>
+<li>RUN - Run commands/shell scripts, etc</li>
+<li>EXPOSE - Ports to expose</li>
+<li>CMD - Final command run when you launch a new container from image</li>
+<li>WORKDIR - Sets working directory (also could use &#39;RUN cd /some/path&#39;)</li>
+<li>COPY # Copies files from host to container</li>
+</ul>
+<h3 id="build-image-from-dockerfile-reponame-can-be-whatever-">Build image from dockerfile (reponame can be whatever)</h3>
+<h3 id="from-the-same-directory-as-dockerfile">From the same directory as Dockerfile</h3>
+<pre><code>$ docker image build -t [<span class="hljs-symbol">REPONAME</span>] .
+</code></pre><h4 id="tip-cache-order">TIP: CACHE &amp; ORDER</h4>
+<ul>
+<li>If you re-run the build, it will be quick because everythging is cached.</li>
+<li>If you change one line and re-run, that line and everything after will not be cached</li>
+<li>Keep things that change the most toward the bottom of the Dockerfile</li>
+</ul>
+<h1 id="extending-dockerfile">EXTENDING DOCKERFILE</h1>
+<h3 id="custom-dockerfile-for-html-paqge-with-nginx">Custom Dockerfile for html paqge with nginx</h3>
+<pre><code><span class="hljs-keyword">FROM</span> nginx:latest <span class="hljs-comment"># Extends nginx so everything included in that image is included here</span>
+<span class="hljs-keyword">WORKDIR</span><span class="bash"> /usr/share/nginx/html
+</span><span class="hljs-keyword">COPY</span><span class="bash"> index.html index.html</span>
+</code></pre><h3 id="build-image-from-dockerfile">Build image from Dockerfile</h3>
+<pre><code>$ docker <span class="hljs-built_in">image</span> build -t nginx-website
+</code></pre><h3 id="running-it">Running it</h3>
+<pre><code>$ docker container <span class="hljs-built_in">run</span> -p <span class="hljs-number">80</span>:<span class="hljs-number">80</span> <span class="hljs-comment">--rm nginx-website</span>
+</code></pre><h3 id="tag-and-push-to-dockerhub">Tag and push to Dockerhub</h3>
+<pre><code>$ docker image <span class="hljs-keyword">tag</span> <span class="hljs-title">nginx-website</span>:latest btraversy/nginx-website:latest
+</code></pre><pre><code>$ docker <span class="hljs-built_in">image</span> <span class="hljs-built_in">push</span> bradtraversy/nginx-website
+</code></pre><h1 id="volumes">VOLUMES</h1>
+<h3 id="volume-makes-special-location-outside-of-container-ufs-used-for-databases">Volume - Makes special location outside of container UFS. Used for databases</h3>
+<h3 id="bind-mount-link-container-path-to-host-path">Bind Mount -Link container path to host path</h3>
+<h3 id="check-volumes">Check volumes</h3>
+<pre><code>$ docker <span class="hljs-keyword">volume</span><span class="bash"> ls</span>
+</code></pre><h3 id="cleanup-unused-volumes">Cleanup unused volumes</h3>
+<pre><code>$ docker <span class="hljs-keyword">volume</span><span class="bash"> prune</span>
+</code></pre><h3 id="pull-down-mysql-image-to-test">Pull down mysql image to test</h3>
+<pre><code><span class="hljs-variable">$ </span>docker pull mysql
+</code></pre><h3 id="inspect-and-see-volume">Inspect and see volume</h3>
+<pre><code>$ docker <span class="hljs-built_in">image</span> inspect mysql
+</code></pre><h3 id="run-container">Run container</h3>
+<pre><code>$ docker container <span class="hljs-keyword">run</span><span class="bash"> <span class="hljs-_">-d</span> --name mysql <span class="hljs-_">-e</span> MYSQL_ALLOW_EMPTY_PASSWORD=True mysql</span>
+</code></pre><h3 id="inspect-and-see-volume-in-container">Inspect and see volume in container</h3>
+<pre><code>$ docker <span class="hljs-keyword">container</span> inspect mysql
+</code></pre><h4 id="tip-mounts">TIP: Mounts</h4>
+<ul>
+<li>You will also see the volume under mounts</li>
+<li>Container gets its own uniqe location on the host to store that data</li>
+<li>Source: xxx is where it lives on the host</li>
+</ul>
+<h3 id="check-volumes">Check volumes</h3>
+<pre><code>$ docker <span class="hljs-keyword">volume</span><span class="bash"> ls</span>
+</code></pre><p><strong>There is no way to tell volumes apart for instance with 2 mysql containers, so we used named volumes</strong></p>
+<h3 id="named-volumes-add-v-command-the-name-here-is-mysql-db-which-could-be-anything-">Named volumes (Add -v command)(the name here is mysql-db which could be anything)</h3>
+<pre><code>$ docker container run -d --name mysql -e MYSQL_ALLOW_EMPTY_PASSWORD=True -v mysql-<span class="hljs-symbol">db:</span>/var/<span class="hljs-class"><span class="hljs-keyword">lib</span>/<span class="hljs-title">mysql</span> <span class="hljs-title">mysql</span></span>
+</code></pre><h3 id="inspect-new-named-volume">Inspect new named volume</h3>
+<pre><code>docker <span class="hljs-keyword">volume</span><span class="bash"> inspect mysql-db</span>
+</code></pre><h1 id="bind-mounts">BIND MOUNTS</h1>
+<ul>
+<li>Can not use in Dockerfile, specified at run time (uses -v as well)</li>
+<li>... run -v /Users/brad/stuff:/path/container (mac/linux)</li>
+<li>... run -v //c/Users/brad/stuff:/path/container (windows)</li>
+</ul>
+<p><strong>TIP: Instead of typing out local path, for working directory use $(pwd):/path/container - On windows may not work unless you are in your users folder</strong></p>
+<h3 id="run-and-be-able-to-edit-index-html-file-local-dir-should-have-the-dockerfile-and-the-index-html-">Run and be able to edit index.html file (local dir should have the Dockerfile and the index.html)</h3>
+<pre><code><span class="hljs-variable">$ </span>docker container run  -p <span class="hljs-number">80</span><span class="hljs-symbol">:</span><span class="hljs-number">80</span> -v <span class="hljs-variable">$(</span>pwd)<span class="hljs-symbol">:/usr/share/nginx/html</span> nginx
+</code></pre><h3 id="go-into-the-container-and-check">Go into the container and check</h3>
+<pre><code><span class="hljs-variable">$ </span>docker container exec -it nginx bash
+<span class="hljs-variable">$ </span>cd /usr/share/nginx/html
+<span class="hljs-variable">$ </span>ls -al
+</code></pre><h3 id="you-could-create-a-file-in-the-container-and-it-will-exiost-on-the-host-as-well">You could create a file in the container and it will exiost on the host as well</h3>
+<pre><code><span class="hljs-variable">$ </span>touch test.txt
+</code></pre><h1 id="docker-compose">DOCKER COMPOSE</h1>
+<ul>
+<li>Configure relationships between containers</li>
+<li>Save our docker container run settings in easy to read file</li>
+<li>2 Parts: YAML File (docker.compose.yml) + CLI tool (docker-compose)</li>
+</ul>
+<h3 id="1-docker-compose-yml-describes-solutions-for">1. docker.compose.yml - Describes solutions for</h3>
+<ul>
+<li>containers</li>
+<li>networks</li>
+<li>volumes</li>
+</ul>
+<h3 id="2-docker-compose-cli-used-for-local-dev-test-automation-with-yaml-files">2. docker-compose CLI - used for local dev/test automation with YAML files</h3>
+<h3 id="sample-compose-file-from-bret-fishers-course-">Sample compose file (From Bret Fishers course)</h3>
+<pre><code><span class="hljs-attribute">version</span>: '2'
+
+<span class="yaml"><span class="hljs-comment"># same as</span>
+<span class="hljs-comment"># docker run -p 80:4000 -v $(pwd):/site bretfisher/jekyll-serve</span>
+
+<span class="hljs-attr">services:</span>
+<span class="hljs-attr">  jekyll:</span>
+<span class="hljs-attr">    image:</span> bretfisher/jekyll-serve
+<span class="hljs-attr">    volumes:</span>
+<span class="hljs-bullet">      -</span> .:/site
+<span class="hljs-attr">    ports:</span>
+<span class="hljs-bullet">      -</span> <span class="hljs-string">'80:4000'</span></span>
+</code></pre><h3 id="to-run">To run</h3>
+<pre><code><span class="hljs-attribute">docker-compose up</span>
+</code></pre><h3 id="you-can-run-in-background-with">You can run in background with</h3>
+<pre><code>docker-compose up <span class="hljs-_">-d</span>
+</code></pre><h3 id="to-cleanup">To cleanup</h3>
+<pre><code><span class="hljs-attribute">docker-compose down</span>
+</code></pre>
