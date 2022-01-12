@@ -1,0 +1,72 @@
+<h1 id="general-queries">General Queries</h1>
+<h2 id="db-row-comparitor">DB Row Comparitor</h2>
+<p>USE [DBName]
+GO
+/<strong>**</strong> Object:  StoredProcedure [dbo].[TableName.Availablitiy7Day]    
+Script Date: 09/06/2021 15:28:51 <strong>**</strong>/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO</p>
+<p>-- =============================================
+-- Author:        <Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:    <Description,,>
+-- =============================================
+ALTER PROC [dbo].[TableName.Availablitiy7Day] AS</p>
+<p> DECLARE @NAME VARCHAR(100)
+DECLARE @SQL NVARCHAR(MAX)
+DECLARE @ParmDefinition nvarchar(500);
+DECLARE @s1 nvarchar(1000);
+DECLARE @s2 nvarchar(1000);
+DECLARE @EndDate datetime;
+DECLARE @StartDate datetime;
+DECLARE @SiteName varchar(50);</p>
+<p>SET @SiteName = &#39;TableName&#39;
+SET @EndDate = Convert(DateTime, DATEDIFF(DAY, 0, GETDATE())) -- today at midnight
+SET @StartDate = Convert(DateTime, DATEDIFF(DAY, 7, GETDATE())) -- 7 days ago at midnight
+--this time period is the last 7 days up to midnight last night</p>
+<p>CREATE TABLE #TableNameCOMPARISONTABLE(
+Id INT IDENTITY
+, RunDate datetime
+, SiteName VARCHAR(50)
+, TableName VARCHAR(100)
+, LocalRowCnt INT
+, RemoteRowCnt INT
+, RowDiff INT
+) 
+SET @ParmDefinition = N&#39;@s2 nvarchar(1000) OUTPUT,@s1 nvarchar(1000) OUTPUT&#39;;
+DECLARE CUR CURSOR FOR
+  SELECT NAME
+  FROM   SYS.TABLES
+  WHERE  schema_id = 16 --TableName</p>
+<p>-- SELECT SCHEMA_ID(&#39;TableName&#39;) AS Result -- THIS QUERY WILL GIVE SCHEMA_ID FROM THE SCHEMA NAME</p>
+<p>OPEN CUR
+FETCH NEXT FROM CUR INTO @NAME
+WHILE @@FETCH_STATUS = 0
+  BEGIN
+ SET @s1=NULL
+ SET @s2=NULL
+ SET @sql = &#39;SELECT @s1=CAST(COUNT(*) AS NVARCHAR(1000)),@s2=&#39;&#39;&#39;+@NAME+
+&#39;&#39;&#39; FROM [TableName].&#39;+@NAME +&#39;  where TimestampUTCsystem between &#39;&#39;&#39;+convert(varchar(23),@StartDate,121)+&#39;&#39;&#39; AND &#39;&#39;&#39;+convert(varchar(23),@EndDate,121)+&#39;&#39;&#39; &#39;
+ EXECUTE sp_executesql  @sql,  @ParmDefinition,  @S1 = @s1 OUTPUT,@S2 = @s2 OUTPUT;</p>
+<p> INSERT INTO #TableNameCOMPARISONTABLE (RunDate, SiteName,TableName,LocalRowCnt) VALUES (getdate(),@SiteName,@s2,@s1)
+ SET @s1=NULL
+ SET @s2=NULL
+ BEGIN TRY<br> SET @sql = &#39;SELECT @s1=CAST(COUNT(<em>) AS NVARCHAR(1000)),@s2=&#39;&#39;&#39;+@NAME+
+&#39;&#39;&#39; FROM OPENQUERY([TableName], &#39;&#39;SELECT </em> FROM &#39;+@NAME + &#39;  where TimestampUTCsystem between &#39;&#39;&#39;&#39;&#39;+convert(varchar(23),@StartDate,121)+&#39;&#39;&#39;&#39;&#39; AND &#39;&#39;&#39;&#39;&#39;+convert(varchar(23),@EndDate,121)+&#39;&#39;&#39;&#39;&#39; &#39;&#39;) &#39;
+ EXECUTE sp_executesql  @sql,  @ParmDefinition,  @S1 = @s1 OUTPUT,@S2 = @s2 OUTPUT;
+ UPDATE #TableNameCOMPARISONTABLE SET RemoteRowCnt=@s1 WHERE TableName=@s2
+ UPDATE #TableNameCOMPARISONTABLE SET RowDiff=(RemoteRowCnt-
+LocalRowCnt) WHERE TableName=@s2
+ END TRY 
+ BEGIN CATCH
+ -- Access error reading from remote table
+ DELETE FROM #TableNameCOMPARISONTABLE WHERE TableName=@NAME
+ END CATCH; 
+ FETCH NEXT FROM CUR INTO @NAME</p>
+<p>  END
+CLOSE CUR
+DEALLOCATE CUR 
+ SELECT * FROM #TableNameCOMPARISONTABLE
+DROP TABLE #TableNameCOMPARISONTABLE </p>
