@@ -1,0 +1,32 @@
+<p>@create date 2020-06-02 17:12:00</p>
+<h1 id="-desc-automation-cisco-ios-device-backup-and-configure-template-">@desc [Automation - Cisco IOS Device Backup and Configure Template]</h1>
+<hr>
+<h2 id="-name-cisco-ios-device-backup-and-configure-template">- name: Cisco IOS Device Backup and Configure Template</h2>
+<h2 id="-hosts-cisco">- hosts: Cisco</h2>
+<pre><code><span class="hljs-attr">  connection:</span> network_cli
+<span class="hljs-attr">  gather_facts:</span> <span class="hljs-literal">false</span>
+</code></pre><h1 id="tasks-">tasks:</h1>
+<h2 id="-name-get-current-date">- name: Get current date</h2>
+<pre><code>  local_action: command <span class="hljs-keyword">date</span> +%Y-%b-%d
+  register: <span class="hljs-keyword">date</span>
+</code></pre><h2 id="-name-get-current-time">- name: Get current time</h2>
+<pre><code>  <span class="hljs-attribute">local_action</span>: command date +%<span class="hljs-attribute">H</span>:%M
+  <span class="hljs-attribute">register</span>: time
+</code></pre><h2 id="-name-get-running-config-and-save-it">- name: Get running-config and save it</h2>
+<pre><code>  ios_config:
+   backup: yes
+   backup_options:
+     <span class="hljs-selector-id">#ansible_host</span> = getting device IP, ansible_net_hostname = getting device hostname
+     filename: <span class="hljs-string">"{{ ansible_net_hostname }}_{{ ansible_host }}.cfg"</span>
+     <span class="hljs-selector-id">#Please</span> change /home/hawar/Desktop to your direcotry
+     <span class="hljs-selector-id">#Every</span> <span class="hljs-selector-tag">time</span> create <span class="hljs-selector-tag">a</span> new directory under named date and <span class="hljs-selector-tag">time</span>
+     dir_path: /tmp/backups/{{ date<span class="hljs-selector-class">.stdout</span> }}_at_{{ <span class="hljs-selector-tag">time</span><span class="hljs-selector-class">.stdout</span> }}
+</code></pre><h2 id="-name-configure-uplink">- name: Configure Uplink</h2>
+<pre><code><span class="hljs-symbol">  ios_config:</span>
+<span class="hljs-symbol">    parents:</span> <span class="hljs-string">"interface Ethernet0/1"</span>
+<span class="hljs-symbol">    lines:</span>
+      - description Uplink
+      - <span class="hljs-built_in">ip</span> address <span class="hljs-number">192.168</span><span class="hljs-meta">.0</span><span class="hljs-meta">.1</span> <span class="hljs-number">255.255</span><span class="hljs-meta">.255</span><span class="hljs-meta">.0</span>
+</code></pre><h2 id="-name-tasks-done">- name: Tasks done</h2>
+<pre><code><span class="hljs-attr">  debug:</span> msg=<span class="hljs-string">"All tasks has been done on <span class="hljs-template-variable">{{ date.stdout }}</span> at <span class="hljs-template-variable">{{ time.stdout }}</span>."</span>
+</code></pre>
