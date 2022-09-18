@@ -1,0 +1,207 @@
+<h1 id="from-https-rutgerblom-com-2020-07-27-automated-ubuntu-server-20-04-installation-with-ansible-comment-page-1-unapproved-7068-moderation-hash-d86dbfe9e37d1983697e666fced34447-comment-7068">from <a href="https://rutgerblom.com/2020/07/27/automated-ubuntu-server-20-04-installation-with-ansible/comment-page-1/?unapproved=7068&amp;moderation-hash=d86dbfe9e37d1983697e666fced34447--comment-7068">https://rutgerblom.com/2020/07/27/automated-ubuntu-server-20-04-installation-with-ansible/comment-page-1/?unapproved=7068&amp;moderation-hash=d86dbfe9e37d1983697e666fced34447--comment-7068</a></h1>
+<h1 id="note-this-requires-a-vcenter-server-due-to-the-fact-the-the-ha-datacenter-vm-file-path-is-always-prepended-to-any-view-crete-vmware-guest-requests-to-an-esxihost">note this requires a vcenter server due to the fact the the /ha-datacenter/vm file path is always prepended to any view/crete vmware.guest requests to an esxihost</h1>
+<hr>
+<ul>
+<li>hosts: localhost
+<li>name:  Deployk8s01.yml
+<li>gather_facts: false
+<li>vars:
+<li>  ansible_python_interpreter: /usr/bin/python3
+<li>  TempDir:                   /tmp                                 -- Temp directory on the Ansible Controller</li>
+<li>  WorkingDir:                /tmp/ubuntu20                        -- Working directory on the Ansible Controller</li>
+<li>  UbuntuISO:                 ubuntu-20.04.5-live-server-amd64.iso -- Ubuntu ISO filename</li>
+<li>  UbuntuISO_URL:             <a href="https://releases.ubuntu.com/20.04/">https://releases.ubuntu.com/20.04/</a>   -- Ubuntu ISO URL</li>
+<li>  UbuntuNewISO:              ubuntu2004.iso                       -- Ubuntu custom ISO name</li>
+<li>  VCenterServer:             x.x.1.137                            -- vCenter FQDN</li>
+<li>  vCenterUser:               administrator@vsphere.local          -- vCenter username</li>
+<li>  vCenterPassword:           password                             -- vCenter password</li>
+<li>  DataCenter:                DC1                                  -- vCenter datacenter</li>
+<li>  VMFolder:                  k8sCluster                           -- vCenter VM folder</li>
+<li>  Datastore:                 datastore1                           -- vSphere datastore</li>  
+<li>  DatastoreDir:              /Install                             -- vSphere datastore ISO directory</li>  
+<li>  UbuntuVMName:              k8s01                                -- Ubuntu VM name of the virtual machine</li>  
+<li>  UbuntuVMDiskSize:          50                                   -- Ubuntu VM disksize in gigabytes</li>
+<li>  UbuntuVMMemorySize:        2048                                 -- Ubuntu VM memory size in megabytes</li>
+<li>  UbuntuVMCPUs:              1                                    -- Ubuntu VM number of CPUs</li> 
+<li>  UbuntuVMCPUCores:          1                                    -- Ubuntu VM number of cores</li>
+<li>  UbuntuVMPortGroup:         VM Network                           -- Ubuntu VM vSphere portgroup</li> 
+<li>  UbuntuOSLocale:            en_US                                -- Ubuntu OS locale</li>
+<li>  UbuntuOSKeyboardLayout:    uk                                   -- Ubuntu OS keyboard layout </li>
+<li>  UbuntuOSKeyboardVariant:   uk                                   -- Ubuntu OS keyboard variant</li>
+<li>  UbuntuOSIPv4Address:       x.x.1.90/24                          -- Ubuntu OS IPv4 address</li>
+<li>  UbuntuOSIPv4Gateway:       x.x.1.1                              -- Ubuntu OS IPv4 gateway</li>
+<li>  UbuntuOSIPv4DNS:           x.x.1.1                              -- Ubuntu OS DNS server</li>
+<li>  UbuntuOSSearchDomain:      teresoic.com                         -- Ubuntu OS DNS search domain</li>
+<li>  UbuntuOSHostname:          k8s01                                -- Ubuntu OS hostname</li>
+<li>  UbuntuOSUser:              user                                 -- Ubuntu OS username</li>
+<li>  UbuntuOSPassword:          VMware1!                             -- Ubuntu OS password</li>
+</ul>
+<h1 id="tasks-">tasks:</h1>
+<h2 id="-name-create-working-directory-on-ansible-controller">- name: Create working directory on Ansible Controller</h2>
+<pre><code>  ansible.builtin.file:
+    path: <span class="hljs-string">"{{ WorkingDir }}"</span>
+    <span class="hljs-keyword">state</span>: directory
+</code></pre><h2 id="-name-check-if-ubuntu-iso-exists-locally-on-ansible-controller">- name: Check if Ubuntu ISO exists locally on Ansible Controller</h2>
+<pre><code>  ansible<span class="hljs-selector-class">.builtin</span><span class="hljs-selector-class">.stat</span>:
+    path: <span class="hljs-string">"{{ TempDir }}/{{ UbuntuISO }}"</span>
+  register: InstallerFileCheck
+</code></pre><h2 id="-name-download-ubuntu-iso-if-iso-file-doesn-t-exist-locally-">- name: Download Ubuntu ISO (if ISO file doesn&#39;t exist locally)</h2>
+<pre><code>  ansible<span class="hljs-selector-class">.builtin</span><span class="hljs-selector-class">.get_url</span>:
+    url:  <span class="hljs-string">"{{ UbuntuISO_URL }}{{ UbuntuISO }}"</span>
+    dest: <span class="hljs-string">"{{ TempDir }}/{{ UbuntuISO }}"</span>
+  when:
+    - InstallerFileCheck<span class="hljs-selector-class">.stat</span><span class="hljs-selector-class">.exists</span> != true
+</code></pre><h4 id="-name-mount-ubuntu-iso">- name: Mount Ubuntu ISO</h4>
+<pre><code>  ansible.posix.mount:
+<span class="hljs-attr">    path:</span>   <span class="hljs-string">"<span class="hljs-template-variable">{{ WorkingDir }}</span>/iso"</span>
+<span class="hljs-attr">    src:</span>    <span class="hljs-string">"<span class="hljs-template-variable">{{ TempDir }}</span>/<span class="hljs-template-variable">{{ UbuntuISO }}</span>"</span>
+<span class="hljs-attr">    fstype:</span> iso9660
+<span class="hljs-attr">    opts:</span>   ro,noauto
+<span class="hljs-attr">    state:</span>  mounted
+</code></pre><h2 id="-name-copy-txt-cfg-from-ubuntu-iso">- name: Copy txt.cfg from Ubuntu ISO</h2>
+<pre><code>  ansible.builtin.copy: 
+<span class="hljs-symbol">    src:</span> <span class="hljs-string">"{{ WorkingDir }}/iso/isolinux/txt.cfg"</span>
+<span class="hljs-symbol">    dest:</span> <span class="hljs-string">"{{ WorkingDir }}/isocopy/isolinux/"</span>
+<span class="hljs-symbol">    mode:</span> <span class="hljs-string">"666"</span>
+</code></pre><h2 id="-name-edit-txt-cfg-to-modify-append-line">- name: Edit txt.cfg to modify append line</h2>
+<pre><code>  ansible.builtin.<span class="hljs-keyword">replace</span>:
+    dest: <span class="hljs-string">"{{ WorkingDir }}/isocopy/isolinux/txt.cfg"</span>
+    regexp: '<span class="hljs-keyword">append</span>   initrd=/casper/initrd quiet  ---'
+    <span class="hljs-keyword">replace</span>: '<span class="hljs-keyword">append</span>   initrd=/casper/initrd quiet --- autoinstall <span class="hljs-keyword">ds</span>=nocloud;s=/cdrom/autoinstall/'
+</code></pre><h2 id="-name-create-directory-to-store-user-data-and-meta-data">- name: Create directory to store user-data and meta-data</h2>
+<pre><code>  ansible.builtin.file:
+    path: <span class="hljs-string">"{{ WorkingDir }}/isocopy/autoinstall"</span>
+    <span class="hljs-keyword">state</span>: directory
+</code></pre><h2 id="-name-copy-user-data-file-to-directory">- name: Copy user-data file to directory</h2>
+<pre><code>  ansible<span class="hljs-selector-class">.builtin</span><span class="hljs-selector-class">.template</span>: 
+    src: ./Ubuntu_user-data<span class="hljs-selector-class">.j2</span>
+    dest: <span class="hljs-string">"{{ WorkingDir }}/isocopy/autoinstall/user-data"</span>
+    mode: <span class="hljs-string">"666"</span>
+</code></pre><h2 id="-name-create-empty-meta-data-file-in-directory">- name: Create empty meta-data file in directory</h2>
+<pre><code>  ansible.builtin.file:
+    path: <span class="hljs-string">"{{ WorkingDir }}/isocopy/autoinstall/meta-data"</span>
+    <span class="hljs-keyword">state</span>: touch
+    mode: <span class="hljs-string">"666"</span>
+</code></pre><h2 id="-name-create-custom-ubuntu-iso">- name: Create custom Ubuntu ISO</h2>
+<pre><code>  ansible.builtin.command: <span class="hljs-string">"xorrisofs -relaxed-filenames -J -R -o <span class="hljs-template-variable">{{ TempDir }}</span>/<span class="hljs-template-variable">{{ UbuntuNewISO }}</span> -b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table <span class="hljs-template-variable">{{ WorkingDir }}</span>/iso/ <span class="hljs-template-variable">{{ WorkingDir }}</span>/isocopy/"</span>
+<span class="hljs-attr">  args:</span>
+<span class="hljs-attr">    chdir:</span> <span class="hljs-string">"<span class="hljs-template-variable">{{ WorkingDir }}</span>/isocopy/"</span>
+</code></pre><h2 id="-name-unmount-ubuntu-iso">- name: Unmount Ubuntu ISO</h2>
+<pre><code>  ansible.posix.mount:
+<span class="hljs-attr">    path:</span>   <span class="hljs-string">"<span class="hljs-template-variable">{{ WorkingDir }}</span>/iso"</span>
+<span class="hljs-attr">    src:</span>    <span class="hljs-string">"<span class="hljs-template-variable">{{ TempDir }}</span>/<span class="hljs-template-variable">{{ UbuntuISO }}</span>"</span>
+<span class="hljs-attr">    fstype:</span> iso9660
+<span class="hljs-attr">    opts:</span>   ro,noauto
+<span class="hljs-attr">    state:</span>  absent
+</code></pre><h2 id="-name-upload-the-custom-ubuntu-iso-to-the-vsphere-datastore">- name: Upload the custom Ubuntu ISO to the vSphere datastore</h2>
+<pre><code>  community.vmware.vsphere_copy: 
+<span class="hljs-attr">    hostname:</span> <span class="hljs-string">"<span class="hljs-template-variable">{{ VCenterServer }}</span>"</span>
+<span class="hljs-attr">    username:</span> <span class="hljs-string">"<span class="hljs-template-variable">{{ vCenterUser }}</span>"</span>
+<span class="hljs-attr">    password:</span> <span class="hljs-string">"<span class="hljs-template-variable">{{ vCenterPassword }}</span>"</span>
+<span class="hljs-attr">    validate_certs:</span> <span class="hljs-literal">no</span>
+<span class="hljs-attr">    datacenter:</span> <span class="hljs-string">"<span class="hljs-template-variable">{{ DataCenter }}</span>"</span>
+<span class="hljs-attr">    src:</span> <span class="hljs-string">"<span class="hljs-template-variable">{{ TempDir }}</span>/<span class="hljs-template-variable">{{ UbuntuNewISO }}</span>"</span> 
+<span class="hljs-attr">    datastore:</span> <span class="hljs-string">"<span class="hljs-template-variable">{{ Datastore }}</span>"</span>
+<span class="hljs-attr">    path:</span> <span class="hljs-string">"<span class="hljs-template-variable">{{ DatastoreDir }}</span>/<span class="hljs-template-variable">{{ UbuntuNewISO }}</span>"</span>
+</code></pre><h2 id="-name-deploy-ubuntu-vm">- name: Deploy Ubuntu VM</h2>
+<pre><code>  community.vmware.vmware_guest:
+<span class="hljs-attr">    hostname:</span> <span class="hljs-string">"<span class="hljs-template-variable">{{ VCenterServer }}</span>"</span>
+<span class="hljs-attr">    username:</span> <span class="hljs-string">"<span class="hljs-template-variable">{{ vCenterUser }}</span>"</span>
+<span class="hljs-attr">    password:</span> <span class="hljs-string">"<span class="hljs-template-variable">{{ vCenterPassword }}</span>"</span>
+<span class="hljs-attr">    validate_certs:</span> <span class="hljs-literal">no</span>
+<span class="hljs-attr">    name:</span> <span class="hljs-string">"<span class="hljs-template-variable">{{ UbuntuVMName }}</span>"</span>
+<span class="hljs-attr">    state:</span> poweredon
+<span class="hljs-attr">    guest_id:</span> ubuntu64Guest
+<span class="hljs-attr">    datacenter:</span> <span class="hljs-string">"<span class="hljs-template-variable">{{ DataCenter }}</span>"</span>
+<span class="hljs-attr">    datastore:</span> <span class="hljs-string">"<span class="hljs-template-variable">{{ Datastore }}</span>"</span>
+<span class="hljs-attr">    folder:</span> <span class="hljs-string">"<span class="hljs-template-variable">{{ VMFolder }}</span>"</span>
+<span class="hljs-attr">    disk:</span>
+<span class="hljs-attr">    - size_gb:</span> <span class="hljs-string">"<span class="hljs-template-variable">{{ UbuntuVMDiskSize }}</span>"</span>
+<span class="hljs-attr">      type:</span> thin
+<span class="hljs-attr">      datastore:</span> <span class="hljs-string">"<span class="hljs-template-variable">{{ Datastore }}</span>"</span>
+<span class="hljs-attr">    hardware:</span>
+<span class="hljs-attr">      memory_mb:</span> <span class="hljs-string">"<span class="hljs-template-variable">{{ UbuntuVMMemorySize }}</span>"</span>
+<span class="hljs-attr">      num_cpus:</span> <span class="hljs-string">"<span class="hljs-template-variable">{{ UbuntuVMCPUs }}</span>"</span>
+<span class="hljs-attr">      num_cpu_cores_per_socket:</span> <span class="hljs-string">"<span class="hljs-template-variable">{{ UbuntuVMCPUCores }}</span>"</span>
+<span class="hljs-attr">      scsi:</span> paravirtual
+<span class="hljs-attr">    networks:</span>
+<span class="hljs-attr">      - name:</span> <span class="hljs-string">"<span class="hljs-template-variable">{{ UbuntuVMPortGroup }}</span>"</span>
+<span class="hljs-attr">        device_type:</span> vmxnet3
+<span class="hljs-attr">    cdrom:</span>
+<span class="hljs-attr">      - controller_number:</span> <span class="hljs-number">0</span>
+<span class="hljs-attr">        unit_number:</span> <span class="hljs-number">0</span>
+<span class="hljs-attr">        type:</span> iso
+<span class="hljs-attr">        iso_path:</span> <span class="hljs-string">"[<span class="hljs-template-variable">{{ Datastore }}</span>] <span class="hljs-template-variable">{{ DatastoreDir }}</span>/<span class="hljs-template-variable">{{ UbuntuNewISO }}</span>"</span>
+<span class="hljs-attr">        state:</span> present
+<span class="hljs-attr">    annotation:</span> <span class="hljs-string">| 
+                *** Auto-Deployed by Ansible ***
+</span><span class="hljs-attr">                Username:</span> {{ UbuntuOSUser }}
+<span class="hljs-attr">                Password:</span> {{ UbuntuOSPassword }}
+</code></pre><h2 id="-name-start-checking-if-the-ubuntu-vm-is-ready">- name: Start checking if the Ubuntu VM is ready</h2>
+<pre><code>  community.vmware.vmware_guest_info:
+<span class="hljs-attr">    hostname:</span> <span class="hljs-string">"<span class="hljs-template-variable">{{ VCenterServer }}</span>"</span>
+<span class="hljs-attr">    username:</span> <span class="hljs-string">"<span class="hljs-template-variable">{{ vCenterUser }}</span>"</span>
+<span class="hljs-attr">    password:</span> <span class="hljs-string">"<span class="hljs-template-variable">{{ vCenterPassword }}</span>"</span>
+<span class="hljs-attr">    datacenter:</span> <span class="hljs-string">"<span class="hljs-template-variable">{{ DataCenter }}</span>"</span>
+<span class="hljs-attr">    validate_certs:</span> <span class="hljs-literal">no</span>
+<span class="hljs-attr">    name:</span> <span class="hljs-string">"<span class="hljs-template-variable">{{ UbuntuVMName }}</span>"</span>
+<span class="hljs-attr">    schema:</span> vsphere
+<span class="hljs-attr">  register:</span> vm_facts
+<span class="hljs-attr">  until:</span> vm_facts.instance.guest.hostName is search(UbuntuOSHostname)
+<span class="hljs-attr">  retries:</span> <span class="hljs-number">30</span>
+<span class="hljs-attr">  delay:</span> <span class="hljs-number">60</span>
+</code></pre><h2 id="-name-set-password-for-the-ubuntu-user">- name: Set password for the Ubuntu user</h2>
+<pre><code>  community.vmware.vmware_vm_shell:
+<span class="hljs-attr">    hostname:</span> <span class="hljs-string">"<span class="hljs-template-variable">{{ VCenterServer }}</span>"</span>
+<span class="hljs-attr">    username:</span> <span class="hljs-string">"<span class="hljs-template-variable">{{ vCenterUser }}</span>"</span>
+<span class="hljs-attr">    password:</span> <span class="hljs-string">"<span class="hljs-template-variable">{{ vCenterPassword }}</span>"</span>
+<span class="hljs-attr">    validate_certs:</span> <span class="hljs-literal">no</span>
+<span class="hljs-attr">    vm_id:</span> <span class="hljs-string">"<span class="hljs-template-variable">{{ UbuntuVMName }}</span>"</span>
+<span class="hljs-attr">    vm_username:</span> <span class="hljs-string">"<span class="hljs-template-variable">{{ UbuntuOSUser }}</span>"</span>
+<span class="hljs-attr">    vm_password:</span> VMware1!
+<span class="hljs-attr">    vm_shell:</span> /usr/bin/echo
+<span class="hljs-attr">    vm_shell_args:</span> <span class="hljs-string">"'<span class="hljs-template-variable">{{ UbuntuOSUser }}</span>:<span class="hljs-template-variable">{{ UbuntuOSPassword}}</span>' | sudo chpasswd"</span>
+</code></pre><h2 id="-name-copy-network-configuration-file-to-working-directory">- name: Copy network configuration file to working directory</h2>
+<pre><code>  ansible<span class="hljs-selector-class">.builtin</span><span class="hljs-selector-class">.template</span>: 
+    src: ./Ubuntu_Netplan<span class="hljs-selector-class">.j2</span>
+    dest: <span class="hljs-string">"{{ WorkingDir }}/00-installer-config.yaml"</span>
+    mode: <span class="hljs-string">"666"</span>
+</code></pre><h2 id="-name-copy-network-configuration-file-to-ubuntu-vm">- name: Copy network configuration file to Ubuntu VM</h2>
+<pre><code>  community.vmware.vmware_guest_file_operation:
+<span class="hljs-attr">    hostname:</span> <span class="hljs-string">"<span class="hljs-template-variable">{{ VCenterServer }}</span>"</span>
+<span class="hljs-attr">    username:</span> <span class="hljs-string">"<span class="hljs-template-variable">{{ vCenterUser }}</span>"</span>
+<span class="hljs-attr">    password:</span> <span class="hljs-string">"<span class="hljs-template-variable">{{ vCenterPassword }}</span>"</span>
+<span class="hljs-attr">    validate_certs:</span> <span class="hljs-literal">no</span>
+<span class="hljs-attr">    vm_id:</span> <span class="hljs-string">"<span class="hljs-template-variable">{{ UbuntuVMName }}</span>"</span>
+<span class="hljs-attr">    vm_username:</span> <span class="hljs-string">"<span class="hljs-template-variable">{{ UbuntuOSUser }}</span>"</span>
+<span class="hljs-attr">    vm_password:</span> VMware1!
+<span class="hljs-attr">    copy:</span>
+<span class="hljs-attr">        src:</span> <span class="hljs-string">"<span class="hljs-template-variable">{{ WorkingDir }}</span>/00-installer-config.yaml"</span>
+<span class="hljs-attr">        dest:</span> <span class="hljs-string">"/home/<span class="hljs-template-variable">{{ UbuntuOSUser }}</span>/00-installer-config.yaml"</span>
+</code></pre><h2 id="-name-move-network-configuration-file-to-right-location-on-ubuntu-vm">- name: Move network configuration file to right location on Ubuntu VM</h2>
+<pre><code>  community.vmware.vmware_vm_shell:
+<span class="hljs-symbol">    hostname:</span> <span class="hljs-string">"{{ VCenterServer }}"</span>
+<span class="hljs-symbol">    username:</span> <span class="hljs-string">"{{ vCenterUser }}"</span>
+<span class="hljs-symbol">    password:</span> <span class="hljs-string">"{{ vCenterPassword }}"</span>
+<span class="hljs-symbol">    validate_certs:</span> no
+<span class="hljs-symbol">    vm_id:</span> <span class="hljs-string">"{{ UbuntuVMName }}"</span>
+<span class="hljs-symbol">    vm_username:</span> <span class="hljs-string">"{{ UbuntuOSUser }}"</span>
+<span class="hljs-symbol">    vm_password:</span> VMware1!
+<span class="hljs-symbol">    vm_shell:</span> <span class="hljs-meta-keyword">/usr/</span>bin/sudo
+<span class="hljs-symbol">    vm_shell_args:</span> <span class="hljs-string">"mv /home/{{ UbuntuOSUser }}/00-installer-config.yaml /etc/netplan/00-installer-config.yaml"</span>
+</code></pre><h2 id="-name-appply-the-network-configuration-on-ubuntu-vm">- name: Appply the network configuration on Ubuntu VM</h2>
+<pre><code>  community.vmware.vmware_vm_shell:
+<span class="hljs-symbol">    hostname:</span> <span class="hljs-string">"{{ VCenterServer }}"</span>
+<span class="hljs-symbol">    username:</span> <span class="hljs-string">"{{ vCenterUser }}"</span>
+<span class="hljs-symbol">    password:</span> <span class="hljs-string">"{{ vCenterPassword }}"</span>
+<span class="hljs-symbol">    validate_certs:</span> no
+<span class="hljs-symbol">    vm_id:</span> <span class="hljs-string">"{{ UbuntuVMName }}"</span>
+<span class="hljs-symbol">    vm_username:</span> <span class="hljs-string">"{{ UbuntuOSUser }}"</span>
+<span class="hljs-symbol">    vm_password:</span> VMware1!
+<span class="hljs-symbol">    vm_shell:</span> <span class="hljs-meta-keyword">/usr/</span>bin/sudo
+<span class="hljs-symbol">    vm_shell_args:</span> netplan apply
+</code></pre><h2 id="-name-delete-working-directory-on-ansible-controller">- name: Delete working directory on Ansible Controller</h2>
+<pre><code>  ansible.builtin.file:
+    path: <span class="hljs-string">"{{ WorkingDir }}"</span>
+    <span class="hljs-keyword">state</span>: absent
+</code></pre>
