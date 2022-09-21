@@ -1,0 +1,256 @@
+<h3 id="r6-as65200-ospf-area-0-1-config">R6 AS65200  - OSPF Area 0,1 - Config</h3>
+<pre><code class="lang-js">Current configuration : 1714 bytes
+!
+version 12.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R6
+!
+boot-<span class="hljs-keyword">start</span>-marker
+boot-<span class="hljs-keyword">end</span>-marker
+!
+!
+<span class="hljs-keyword">no</span> aaa <span class="hljs-keyword">new</span>-<span class="hljs-keyword">model</span>
+mmi polling-<span class="hljs-built_in">interval</span> <span class="hljs-number">60</span>
+<span class="hljs-keyword">no</span> mmi <span class="hljs-keyword">auto</span>-configure
+<span class="hljs-keyword">no</span> mmi pvc
+mmi snmp-<span class="hljs-keyword">timeout</span> <span class="hljs-number">180</span>
+ip <span class="hljs-keyword">source</span>-route
+!
+!
+!
+!         
+ip cef
+<span class="hljs-keyword">no</span> ipv6 traffic <span class="hljs-keyword">interface</span>-<span class="hljs-keyword">statistics</span>
+<span class="hljs-keyword">no</span> ipv6 cef
+!
+multilink bundle-<span class="hljs-keyword">name</span> <span class="hljs-keyword">authenticated</span>
+!
+!
+!
+!
+!
+!
+!
+!
+!
+redundancy
+! 
+!
+!
+!
+!
+!
+!
+!         
+!
+<span class="hljs-keyword">interface</span> Ethernet0/<span class="hljs-number">0</span>
+ description Backbone <span class="hljs-keyword">to</span> R5
+ ip address <span class="hljs-number">172.16</span><span class="hljs-number">.0</span><span class="hljs-number">.2</span> <span class="hljs-number">255.255</span><span class="hljs-number">.255</span><span class="hljs-number">.252</span>
+!
+<span class="hljs-keyword">interface</span> Ethernet0/<span class="hljs-number">1</span>
+ description Backbone <span class="hljs-keyword">to</span> R7
+ ip address <span class="hljs-number">10.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span> <span class="hljs-number">255.255</span><span class="hljs-number">.255</span><span class="hljs-number">.252</span>
+!
+<span class="hljs-keyword">interface</span> Ethernet0/<span class="hljs-number">2</span>
+ description Uplink <span class="hljs-keyword">from</span> SW1
+ ip address <span class="hljs-number">192.168</span><span class="hljs-number">.2</span><span class="hljs-number">.1</span> <span class="hljs-number">255.255</span><span class="hljs-number">.255</span><span class="hljs-number">.0</span>
+!
+<span class="hljs-keyword">interface</span> Ethernet0/<span class="hljs-number">3</span>
+ <span class="hljs-keyword">no</span> ip address
+ <span class="hljs-keyword">shutdown</span>
+!
+<span class="hljs-keyword">interface</span> Serial1/<span class="hljs-number">0</span>
+ <span class="hljs-keyword">no</span> ip address
+ <span class="hljs-keyword">shutdown</span>
+ <span class="hljs-keyword">no</span> fair-queue
+ <span class="hljs-built_in">serial</span> restart-delay <span class="hljs-number">0</span>
+!         
+<span class="hljs-keyword">interface</span> Serial1/<span class="hljs-number">1</span>
+ <span class="hljs-keyword">no</span> ip address
+ <span class="hljs-keyword">shutdown</span>
+ <span class="hljs-built_in">serial</span> restart-delay <span class="hljs-number">0</span>
+!
+<span class="hljs-keyword">interface</span> Serial1/<span class="hljs-number">2</span>
+ <span class="hljs-keyword">no</span> ip address
+ <span class="hljs-keyword">shutdown</span>
+ <span class="hljs-built_in">serial</span> restart-delay <span class="hljs-number">0</span>
+!
+<span class="hljs-keyword">interface</span> Serial1/<span class="hljs-number">3</span>
+ <span class="hljs-keyword">no</span> ip address
+ <span class="hljs-keyword">shutdown</span>
+ <span class="hljs-built_in">serial</span> restart-delay <span class="hljs-number">0</span>
+!
+router ospf <span class="hljs-number">100</span>
+ <span class="hljs-keyword">log</span>-adjacency-changes
+ network <span class="hljs-number">10.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span> <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span> area <span class="hljs-number">0</span>
+ network <span class="hljs-number">192.168</span><span class="hljs-number">.2</span><span class="hljs-number">.1</span> <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span> area <span class="hljs-number">1</span>
+!
+router bgp <span class="hljs-number">65200</span>
+ <span class="hljs-keyword">no</span> synchronization
+ bgp <span class="hljs-keyword">log</span>-neighbor-changes
+ redistribute ospf <span class="hljs-number">100</span> route-<span class="hljs-keyword">map</span> LAN_Subnets
+ neighbor <span class="hljs-number">10.0</span><span class="hljs-number">.0</span><span class="hljs-number">.2</span> remote-<span class="hljs-keyword">as</span> <span class="hljs-number">65200</span>
+ neighbor <span class="hljs-number">172.16</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span> remote-<span class="hljs-keyword">as</span> <span class="hljs-number">65100</span>
+ <span class="hljs-keyword">no</span> <span class="hljs-keyword">auto</span>-summary
+!
+ip forward-protocol nd
+!
+!
+<span class="hljs-keyword">no</span> ip <span class="hljs-keyword">http</span> <span class="hljs-keyword">server</span>
+<span class="hljs-keyword">no</span> ip <span class="hljs-keyword">http</span> secure-<span class="hljs-keyword">server</span>
+!
+<span class="hljs-keyword">access</span>-<span class="hljs-keyword">list</span> <span class="hljs-number">10</span> permit <span class="hljs-number">192.168</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span> <span class="hljs-number">0.0</span><span class="hljs-number">.255</span><span class="hljs-number">.255</span>
+!
+!
+!
+!
+route-<span class="hljs-keyword">map</span> LAN_Subnets permit <span class="hljs-number">10</span>
+ <span class="hljs-keyword">match</span> ip address <span class="hljs-number">10</span>
+ <span class="hljs-keyword">set</span> metric <span class="hljs-number">100</span>
+!
+!
+!
+control-plane
+!
+!
+line con <span class="hljs-number">0</span>
+ exec-<span class="hljs-keyword">timeout</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span>
+ <span class="hljs-keyword">logging</span> <span class="hljs-keyword">synchronous</span>
+line aux <span class="hljs-number">0</span>
+line vty <span class="hljs-number">0</span> <span class="hljs-number">4</span>
+ login
+!
+<span class="hljs-keyword">exception</span> <span class="hljs-keyword">data</span>-<span class="hljs-keyword">corruption</span> buffer <span class="hljs-keyword">truncate</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
+<h3 id="r7-as65200-ospf-area-0-2-config">R7 AS65200 - OSPF Area 0,2 - Config</h3>
+<pre><code class="lang-js">Current configuration : 1714 bytes
+!
+version 12.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R7
+!
+boot-<span class="hljs-keyword">start</span>-marker
+boot-<span class="hljs-keyword">end</span>-marker
+!
+!
+<span class="hljs-keyword">no</span> aaa <span class="hljs-keyword">new</span>-<span class="hljs-keyword">model</span>
+mmi polling-<span class="hljs-built_in">interval</span> <span class="hljs-number">60</span>
+<span class="hljs-keyword">no</span> mmi <span class="hljs-keyword">auto</span>-configure
+<span class="hljs-keyword">no</span> mmi pvc
+mmi snmp-<span class="hljs-keyword">timeout</span> <span class="hljs-number">180</span>
+ip <span class="hljs-keyword">source</span>-route
+!
+!
+!
+!         
+ip cef
+<span class="hljs-keyword">no</span> ipv6 traffic <span class="hljs-keyword">interface</span>-<span class="hljs-keyword">statistics</span>
+<span class="hljs-keyword">no</span> ipv6 cef
+!
+multilink bundle-<span class="hljs-keyword">name</span> <span class="hljs-keyword">authenticated</span>
+!
+!
+!
+!
+!
+!
+!
+!
+!
+redundancy
+! 
+!
+!
+!
+!
+!
+!
+!         
+!
+<span class="hljs-keyword">interface</span> Ethernet0/<span class="hljs-number">0</span>
+ description Backbone <span class="hljs-keyword">to</span> R5
+ ip address <span class="hljs-number">172.16</span><span class="hljs-number">.0</span><span class="hljs-number">.6</span> <span class="hljs-number">255.255</span><span class="hljs-number">.255</span><span class="hljs-number">.252</span>
+!
+<span class="hljs-keyword">interface</span> Ethernet0/<span class="hljs-number">1</span>
+ description Backbone <span class="hljs-keyword">to</span> R6
+ ip address <span class="hljs-number">10.0</span><span class="hljs-number">.0</span><span class="hljs-number">.2</span> <span class="hljs-number">255.255</span><span class="hljs-number">.255</span><span class="hljs-number">.252</span>
+!
+<span class="hljs-keyword">interface</span> Ethernet0/<span class="hljs-number">2</span>
+ description Uplink <span class="hljs-keyword">from</span> SW2
+ ip address <span class="hljs-number">192.168</span><span class="hljs-number">.3</span><span class="hljs-number">.1</span> <span class="hljs-number">255.255</span><span class="hljs-number">.255</span><span class="hljs-number">.0</span>
+!
+<span class="hljs-keyword">interface</span> Ethernet0/<span class="hljs-number">3</span>
+ <span class="hljs-keyword">no</span> ip address
+ <span class="hljs-keyword">shutdown</span>
+!
+<span class="hljs-keyword">interface</span> Serial1/<span class="hljs-number">0</span>
+ <span class="hljs-keyword">no</span> ip address
+ <span class="hljs-keyword">shutdown</span>
+ <span class="hljs-keyword">no</span> fair-queue
+ <span class="hljs-built_in">serial</span> restart-delay <span class="hljs-number">0</span>
+!         
+<span class="hljs-keyword">interface</span> Serial1/<span class="hljs-number">1</span>
+ <span class="hljs-keyword">no</span> ip address
+ <span class="hljs-keyword">shutdown</span>
+ <span class="hljs-built_in">serial</span> restart-delay <span class="hljs-number">0</span>
+!
+<span class="hljs-keyword">interface</span> Serial1/<span class="hljs-number">2</span>
+ <span class="hljs-keyword">no</span> ip address
+ <span class="hljs-keyword">shutdown</span>
+ <span class="hljs-built_in">serial</span> restart-delay <span class="hljs-number">0</span>
+!
+<span class="hljs-keyword">interface</span> Serial1/<span class="hljs-number">3</span>
+ <span class="hljs-keyword">no</span> ip address
+ <span class="hljs-keyword">shutdown</span>
+ <span class="hljs-built_in">serial</span> restart-delay <span class="hljs-number">0</span>
+!
+router ospf <span class="hljs-number">100</span>
+ <span class="hljs-keyword">log</span>-adjacency-changes
+ network <span class="hljs-number">10.0</span><span class="hljs-number">.0</span><span class="hljs-number">.2</span> <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span> area <span class="hljs-number">0</span>
+ network <span class="hljs-number">192.168</span><span class="hljs-number">.3</span><span class="hljs-number">.1</span> <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span> area <span class="hljs-number">2</span>
+!
+router bgp <span class="hljs-number">65200</span>
+ <span class="hljs-keyword">no</span> synchronization
+ bgp <span class="hljs-keyword">log</span>-neighbor-changes
+ redistribute ospf <span class="hljs-number">100</span> route-<span class="hljs-keyword">map</span> LAN_Subnets
+ neighbor <span class="hljs-number">10.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span> remote-<span class="hljs-keyword">as</span> <span class="hljs-number">65200</span>
+ neighbor <span class="hljs-number">172.16</span><span class="hljs-number">.0</span><span class="hljs-number">.5</span> remote-<span class="hljs-keyword">as</span> <span class="hljs-number">65100</span>
+ <span class="hljs-keyword">no</span> <span class="hljs-keyword">auto</span>-summary
+!
+ip forward-protocol nd
+!
+!
+<span class="hljs-keyword">no</span> ip <span class="hljs-keyword">http</span> <span class="hljs-keyword">server</span>
+<span class="hljs-keyword">no</span> ip <span class="hljs-keyword">http</span> secure-<span class="hljs-keyword">server</span>
+!
+<span class="hljs-keyword">access</span>-<span class="hljs-keyword">list</span> <span class="hljs-number">10</span> permit <span class="hljs-number">192.168</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span> <span class="hljs-number">0.0</span><span class="hljs-number">.255</span><span class="hljs-number">.255</span>
+!
+!
+!
+!
+route-<span class="hljs-keyword">map</span> LAN_Subnets permit <span class="hljs-number">10</span>
+ <span class="hljs-keyword">match</span> ip address <span class="hljs-number">10</span>
+ <span class="hljs-keyword">set</span> metric <span class="hljs-number">100</span>
+!
+!
+!
+control-plane
+!
+!
+line con <span class="hljs-number">0</span>
+ exec-<span class="hljs-keyword">timeout</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span>
+ <span class="hljs-keyword">logging</span> <span class="hljs-keyword">synchronous</span>
+line aux <span class="hljs-number">0</span>
+line vty <span class="hljs-number">0</span> <span class="hljs-number">4</span>
+ login
+!
+<span class="hljs-keyword">exception</span> <span class="hljs-keyword">data</span>-<span class="hljs-keyword">corruption</span> buffer <span class="hljs-keyword">truncate</span>
+<span class="hljs-keyword">end</span>
+</code></pre>
